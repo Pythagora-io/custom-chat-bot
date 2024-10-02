@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/_head.ejs') %>
+<body>
+<%- include('partials/_header.ejs') %>
+  <main role="main" class="container mt-4">
+    <h1 class="mb-4">Customize Chatbot: <%= chatbot.name %></h1>
+    <form action="/chatbot/customize/<%= chatbot._id %>" method="POST">
+      <div id="formErrors" class="alert alert-danger d-none" role="alert"></div>
+      <div class="mb-3">
+        <label for="chatbotName" class="form-label">Chatbot Name</label>
+        <input type="text" class="form-control" id="chatbotName" name="name" value="<%= chatbot.name %>" required>
+      </div>
+      <div class="mb-3">
+        <h2>Theme Customization</h2>
+        <div class="row g-2">
+          <div class="col-md-4">
+            <label for="primaryColor" class="form-label">Primary Color</label>
+            <input type="color" class="form-control form-control-color" id="primaryColor" name="primaryColor" value="<%= chatbot.primaryColor || '#007bff' %>">
+          </div>
+          <div class="col-md-4">
+            <label for="secondaryColor" class="form-label">Secondary Color</label>
+            <input type="color" class="form-control form-control-color" id="secondaryColor" name="secondaryColor" value="<%= chatbot.secondaryColor || '#6c757d' %>">
+          </div>
+          <div class="col-md-4">
+            <label for="textColor" class="form-label">Text Color</label>
+            <input type="color" class="form-control form-control-color" id="textColor" name="textColor" value="<%= chatbot.textColor || '#ffffff' %>">
+          </div>
+        </div>
+      </div>
+      <div class="mb-3">
+        <label for="chatbotLocation" class="form-label">Chatbot Placement</label>
+        <select class="form-select" id="chatbotLocation" name="location">
+          <option value="right" <%= chatbot.location === 'right' ? 'selected' : '' %>>Bottom Right</option>
+          <option value="left" <%= chatbot.location === 'left' ? 'selected' : '' %>>Bottom Left</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <h2>Personality Traits (Select multiple)</h2>
+        <% const traits = ['Friendly', 'Professional', 'Humorous', 'Empathetic', 'Formal', 'Casual', 'Enthusiastic', 'Serious', 'Witty', 'Straightforward', 'Caring', 'Analytical']; %>
+        <% traits.forEach(trait => { %>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="<%= trait.toLowerCase() %>" id="<%= trait.toLowerCase() %>" name="personalityTraits" <%= chatbot.personalityTraits.includes(trait.toLowerCase()) ? 'checked' : '' %>>
+            <label class="form-check-label" for="<%= trait.toLowerCase() %>"><%= trait %></label>
+          </div>
+        <% }); %>
+      </div>
+
+      <div class="mb-3">
+        <h2>Response Patterns (Select one)</h2>
+        <% const patterns = ['Formal', 'Casual', 'Technical', 'Simplified', 'Elaborate', 'Concise']; %>
+        <% patterns.forEach(pattern => { %>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="responsePattern" id="<%= pattern.toLowerCase() %>" value="<%= pattern.toLowerCase() %>" <%= chatbot.responsePattern === pattern.toLowerCase() ? 'checked' : '' %> required>
+            <label class="form-check-label" for="<%= pattern.toLowerCase() %>"><%= pattern %></label>
+          </div>
+        <% }); %>
+      </div>
+
+      <div class="mb-3">
+        <h2>Culture-Specific Behaviors</h2>
+        <label for="country" class="form-label">Country</label>
+        <select class="form-select" id="country" name="country" required>
+          <option value="Worldwide" <%= chatbot.country === 'Worldwide' ? 'selected' : '' %>>Worldwide</option>
+          <% countries.forEach(country => { %>
+            <option value="<%= country %>" <%= chatbot.country === country ? 'selected' : '' %>><%= country %></option>
+          <% }); %>
+        </select>
+
+        <label for="greeting" class="form-label mt-2">Greeting</label>
+        <input type="text" class="form-control" id="greeting" name="greeting" value="<%= chatbot.greeting %>" placeholder="Enter a culturally appropriate greeting" required>
+
+        <label for="farewell" class="form-label mt-2">Farewell</label>
+        <input type="text" class="form-control" id="farewell" name="farewell" value="<%= chatbot.farewell %>" placeholder="Enter a culturally appropriate farewell" required>
+      </div>
+
+      <div class="mb-3">
+        <h2>Context Questions</h2>
+        <% const contextQuestions = [
+          "What is the primary purpose of this chatbot?",
+          "Who is the target audience for this chatbot?",
+          "What specific industry or domain knowledge should the chatbot have?",
+          "Are there any particular topics or questions the chatbot should be prepared to handle?",
+          "What tone or style should the chatbot maintain in its responses?",
+          "Are there any specific guidelines or policies the chatbot should follow?"
+        ]; %>
+        <% contextQuestions.forEach((question, index) => { %>
+          <div class="mb-2">
+            <label for="contextQuestion<%= index %>" class="form-label"><%= question %></label>
+            <textarea class="form-control" id="contextQuestion<%= index %>" name="contextQuestions[<%= index %>][answer]" rows="3" required><%= chatbot.contextQuestions[index]?.answer || '' %></textarea>
+            <input type="hidden" name="contextQuestions[<%= index %>][question]" value="<%= question %>">
+          </div>
+        <% }); %>
+      </div>
+
+      <button type="submit" id="submitButton" class="btn btn-primary">Save Customization</button>
+    </form>
+    <div class="mt-4">
+      <h2>Chatbot Preview</h2>
+      <div id="chatbotPreview" class="border p-3 rounded">
+        <h3>Personality Traits:</h3>
+        <p id="previewPersonality"></p>
+        <h3>Response Pattern:</h3>
+        <p id="previewResponsePattern"></p>
+        <h3>Cultural Behavior:</h3>
+        <p id="previewCulture"></p>
+        <h3>Placement:</h3>
+        <p id="previewLocation"></p>
+        <h3>Context:</h3>
+        <div id="previewContext"></div>
+      </div>
+    </div>
+  </main>
+<%- include('partials/_footer.ejs') %>
+<script src="/js/chatbotCustomize.js"></script>
+<script src="/js/chatbotPreview.js"></script>
+</body>
+</html>

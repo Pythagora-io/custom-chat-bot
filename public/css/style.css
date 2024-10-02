@@ -1,0 +1,28 @@
+/* Placeholder for custom styles */
+
+#chatbotPreview {
+  background-color: #f8f9fa;
+}
+
+#chatbotPreview h3 {
+  font-size: 1.2rem;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+#chatbotPreview p {
+  margin-bottom: 0.5rem;
+}
+
+nav{
+  padding: 10 20;
+}
+
+footer div {
+  padding: 10 0 10 0;
+}
+
+.pythagora-logo {
+  height: 20px;
+  margin-left: 5px;
+}

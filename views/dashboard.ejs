@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/_head.ejs') %>
+<body>
+<%- include('partials/_header.ejs') %>
+  <main role="main" class="container mt-4">
+    <h1 class="mb-4">Dashboard</h1>
+    <div class="row">
+      <div class="col-md-8">
+        <h2>Your Chatbots</h2>
+        <% if (chatbots.length === 0) { %>
+          <p>You don't have any chatbots yet. Create your first one!</p>
+        <% } else { %>
+          <ul class="list-group">
+            <% chatbots.forEach(chatbot => { %>
+              <% console.log('Rendering chatbot:', JSON.stringify(chatbot, null, 2)); %>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span><%= chatbot.name %></span>
+                <div>
+                  <a href="/chatbot/customize/<%= chatbot._id %>" class="btn btn-primary btn-sm me-2">Customize</a>
+                  <a href="/chatbot/test/<%= chatbot._id %>" class="btn btn-info btn-sm me-2">Test</a>
+                  <a href="/deploy/<%= chatbot._id %>" class="btn btn-success btn-sm me-2">Deploy</a>
+                  <form action="/dashboard/clone-chatbot/<%= chatbot._id %>" method="POST" class="d-inline me-2">
+                    <button type="submit" class="btn btn-warning btn-sm">Clone</button>
+                  </form>
+                  <form action="/dashboard/delete-chatbot/<%= chatbot._id %>" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                  </form>
+                </div>
+              </li>
+            <% }); %>
+          </ul>
+        <% } %>
+      </div>
+      <div class="col-md-4">
+        <h2>Create New Chatbot</h2>
+        <form action="/dashboard/create-chatbot" method="POST">
+          <div class="mb-3">
+            <label for="chatbotName" class="form-label">Chatbot Name</label>
+            <input type="text" class="form-control" id="chatbotName" name="name" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Create Chatbot</button>
+        </form>
+      </div>
+    </div>
+  </main>
+<%- include('partials/_footer.ejs') %>
+<script src="/js/dashboard.js"></script>
+</body>
+</html>

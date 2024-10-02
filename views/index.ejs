@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/_head.ejs') %>
+  <body>
+<%- include('partials/_header.ejs') %>
+    <main role="main" class="container mt-4">
+      <div class="text-center">
+        <h1>Welcome to Pythagora Chatbots</h1>
+        <% if (session && session.userId) { %>
+          <p>You are logged in. <a href="/dashboard" class="btn btn-primary">Go to Dashboard</a></p>
+        <% } else { %>
+          <p>Please <a href="/auth/login">login</a> or <a href="/auth/register">register</a> to access your dashboard.</p>
+        <% } %>
+      </div>
+    </main>
+  </body>
+<%- include('partials/_footer.ejs') %>
+  <script src="/js/main.js"></script>
+</html>

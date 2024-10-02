@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/_head.ejs') %>
+<body>
+<%- include('partials/_header.ejs') %>
+  <main role="main" class="container mt-4">
+    <h1 class="mb-4">Deploy Chatbot: <%= chatbot.name %></h1>
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Deployment Script</h5>
+        <p class="card-text">Copy and paste these script tags into your website's HTML to deploy your chatbot:</p>
+        <pre class="bg-light p-3"><code id="scriptTag">&lt;script src="https://<%= serverDomain %>/socket.io/socket.io.js"&gt;&lt;/script&gt;
+&lt;script src="https://<%= serverDomain %>/api/chatbot-script?apiKey=<%= apiKey %>&chatbotId=<%= chatbot.uniqueId %>"&gt;&lt;/script&gt;</code></pre>
+        <button class="btn btn-primary mt-3" id="copyScript">Copy Script</button>
+        <div id="copyAlert" class="alert alert-success mt-3" style="display: none;" role="alert">
+          Script copied to clipboard!
+        </div>
+      </div>
+    </div>
+  </main>
+<%- include('partials/_footer.ejs') %>
+<script>
+  document.getElementById('copyScript').addEventListener('click', function() {
+    const scriptTag = document.getElementById('scriptTag');
+    const copyAlert = document.getElementById('copyAlert');
+
+    navigator.clipboard.writeText(scriptTag.textContent).then(function() {
+      copyAlert.style.display = 'block';
+      setTimeout(() => {
+        copyAlert.style.display = 'none';
+      }, 3000);
+    }).catch(function(err) {
+      console.error('Could not copy text: ', err);
+      console.error(err.stack);
+      alert('Failed to copy script. Please try again.');
+    });
+  });
+</script>
+</body>
+</html>
