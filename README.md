@@ -1,4 +1,3 @@
-```markdown
 # Pythagora Chatbots
 
 Pythagora Chatbots is an online chatbot design and management application that allows users to create, customize, and deploy LLM-based support chatbots with unique personalities and culture-specific behaviors. These chatbots can be integrated into client websites to provide instant responses, suggestions, and task completions based on user queries.
@@ -68,4 +67,3 @@ Pythagora Chatbots is built using a modern web stack including Node.js, Express,
 
 The project is proprietary (not open source).
 © 2024 Pythagora Chatbots. All rights reserved.
-```
