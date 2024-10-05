@@ -5,6 +5,17 @@
 <%- include('partials/_header.ejs') %>
   <main role="main" class="container mt-4">
     <h1 class="mb-4">Deploy Chatbot: <%= chatbot.name %></h1>
+
+    <% if (!hasApiKey) { %>
+      <div class="alert alert-warning" role="alert">
+        <strong>Reminder:</strong> You haven't set your OpenAI API key yet. Please set your API key in your profile before deploying the chatbot. <a href="/profile" class="alert-link">Go to Profile</a>
+      </div>
+    <% } else if (!isApiKeyValid) { %>
+      <div class="alert alert-danger" role="alert">
+        <strong>Warning:</strong> Your OpenAI API key is invalid or has expired. Please update your API key in your profile before deploying the chatbot. <a href="/profile" class="alert-link">Go to Profile</a>
+      </div>
+    <% } %>
+
     <div class="card">
       <div class="card-body">
         <h5 class="card-title">Deployment Script</h5>

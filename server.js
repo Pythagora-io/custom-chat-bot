@@ -11,6 +11,7 @@ const authRoutes = require("./routes/authRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const apiRoutes = require('./routes/apiRoutes');
 const deploymentRoutes = require('./routes/deploymentRoutes');
+const profileRoutes = require('./routes/profileRoutes'); // Added for user profile management
 require('./models/Chatbot');
 const path = require('path');
 const User = require('./models/User'); // Added for socket authentication
@@ -85,6 +86,7 @@ app.use(authRoutes);
 app.use(dashboardRoutes);
 app.use('/api', apiRoutes);
 app.use(deploymentRoutes);
+app.use('/', profileRoutes); // Registering the profile routes
 
 app.use('/socket.io', express.static(__dirname + '/node_modules/socket.io/client-dist'));
 
@@ -170,7 +172,7 @@ io.on('connection', (socket) => {
         // Add user message to conversation history
         conversationHistory.push({ role: 'user', content: data.message });
 
-        const botResponse = await generateResponse(chatbot, data.message, conversationHistory);
+        const botResponse = await generateResponse(chatbot, data.message, conversationHistory, socket.user.openaiApiKey);
 
         // Add bot response to conversation history
         conversationHistory.push({ role: 'assistant', content: botResponse });

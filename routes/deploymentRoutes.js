@@ -3,10 +3,12 @@ const router = express.Router();
 const { isAuthenticated } = require('./middleware/authMiddleware');
 const User = require('../models/User');
 const Chatbot = require('../models/Chatbot');
+const { isApiKeyValid } = require('../utils/openaiIntegration');
 
 router.get('/deploy/:chatbotId', isAuthenticated, async (req, res) => {
   try {
     const user = await User.findById(req.session.userId);
+    console.log('User OpenAI API Key:', user.openaiApiKey ? 'Set' : 'Not set');
     const chatbot = await Chatbot.findOne({ _id: req.params.chatbotId, user: user._id });
 
     if (!chatbot) {
@@ -17,6 +19,15 @@ router.get('/deploy/:chatbotId', isAuthenticated, async (req, res) => {
     const serverDomain = process.env.SERVER_DOMAIN || req.get('host');
     console.log('Server domain for deployment:', serverDomain);
 
+    const hasApiKey = !!user.openaiApiKey;
+    let apiKeyValid = false;
+
+    if (hasApiKey) {
+      console.log('Attempting to validate API key');
+      apiKeyValid = await isApiKeyValid(user.openaiApiKey);
+      console.log('API key validation result:', apiKeyValid);
+    }
+
     res.render('deploy', {
       chatbot,
       apiKey: user.apiKey,
@@ -24,7 +35,9 @@ router.get('/deploy/:chatbotId', isAuthenticated, async (req, res) => {
       location: chatbot.location,
       primaryColor: chatbot.primaryColor,
       secondaryColor: chatbot.secondaryColor,
-      textColor: chatbot.textColor
+      textColor: chatbot.textColor,
+      hasApiKey: hasApiKey,
+      isApiKeyValid: apiKeyValid
     });
   } catch (error) {
     console.error('Error fetching deployment information:', error);

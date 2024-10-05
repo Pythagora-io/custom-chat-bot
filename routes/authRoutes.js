@@ -9,12 +9,12 @@ router.get('/auth/register', (req, res) => {
 
 router.post('/auth/register', async (req, res) => {
   try {
-    const { username, password } = req.body;
-    // User model will automatically hash the password using bcrypt
-    await User.create({ username, password });
+    const { username, email, password } = req.body;
+    await User.create({ username, email, password });
     res.redirect('/auth/login');
   } catch (error) {
     console.error('Registration error:', error);
+    console.error(error.stack);
     res.status(500).send(error.message);
   }
 });
@@ -25,8 +25,10 @@ router.get('/auth/login', (req, res) => {
 
 router.post('/auth/login', async (req, res) => {
   try {
-    const { username, password } = req.body;
-    const user = await User.findOne({ username });
+    const { login, password } = req.body;
+    const user = await User.findOne({
+      $or: [{ username: login }, { email: login }]
+    });
     if (!user) {
       return res.status(400).send('User not found');
     }
@@ -39,6 +41,7 @@ router.post('/auth/login', async (req, res) => {
     }
   } catch (error) {
     console.error('Login error:', error);
+    console.error(error.stack);
     return res.status(500).send(error.message);
   }
 });
@@ -46,7 +49,8 @@ router.post('/auth/login', async (req, res) => {
 router.get('/auth/logout', (req, res) => {
   req.session.destroy(err => {
     if (err) {
-      console.error('Error during session destruction:', err); // gpt_pilot_debugging_log
+      console.error('Error during session destruction:', err);
+      console.error(err.stack);
       return res.status(500).send('Error logging out');
     }
     res.redirect('/auth/login');

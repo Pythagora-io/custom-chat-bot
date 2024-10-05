@@ -37,56 +37,6 @@ module.exports = function(io) {
   const router = express.Router();
   const conversationHistories = new Map();
 
-  io.on('connection', (socket) => {
-    console.log('New Socket.IO connection established. Socket ID:', socket.id);
-
-    const conversationId = socket.handshake.query.conversationId;
-    const chatbotId = socket.handshake.query.chatbotId;
-
-    console.log(`Conversation ID: ${conversationId}, Chatbot ID: ${chatbotId}`);
-
-    socket.on('join', (conversationId) => {
-      console.log(`Socket ${socket.id} joined conversationId: ${conversationId}`);
-      socket.join(conversationId);
-    });
-
-    socket.on('chatMessage', async (data) => {
-      console.log('Received chat message. Socket ID:', socket.id, 'Chatbot ID:', data.chatbotId, 'Message:', data.message);
-      console.log('Full data object:', JSON.stringify(data));
-
-      try {
-        let chatbot = await Chatbot.findOne({ uniqueId: data.chatbotId, user: socket.user._id });
-        console.log('Found chatbot:', chatbot ? chatbot.name : 'Not found');
-
-        if (!chatbot) {
-          console.error(`Chatbot not found for uniqueId: ${data.chatbotId}`);
-          throw new Error('Chatbot not found');
-        }
-
-        let conversationHistory = conversationHistories.get(data.conversationId) || [];
-        conversationHistory.push({ role: 'user', content: data.message });
-
-        const botResponse = await generateResponse(chatbot, data.message, conversationHistory);
-
-        conversationHistory.push({ role: 'assistant', content: botResponse });
-        conversationHistories.set(data.conversationId, conversationHistory);
-
-        console.log(`Sending response to conversationId: ${data.conversationId}`);
-        io.to(data.conversationId).emit('message', {
-          isUser: false,
-          message: botResponse
-        });
-      } catch (error) {
-        console.error('Error processing message:', error);
-        console.error(error.stack);
-        io.to(data.conversationId).emit('message', {
-          isUser: false,
-          message: "I'm sorry, I encountered an error. Please try again."
-        });
-      }
-    });
-  });
-
   router.get('/customize/:id', isAuthenticated, async (req, res) => {
     try {
       const chatbot = await Chatbot.findOne({ _id: req.params.id, user: req.session.userId });
@@ -184,12 +134,18 @@ module.exports = function(io) {
   router.post('/message/:id', isAuthenticated, async (req, res) => {
     console.log('Received message request for chatbot:', req.params.id);
     console.log('User message:', req.body.message);
-    console.log('Current session conversation history:', req.session.conversationHistory); // Added log for conversation history
+    console.log('Current session conversation history:', req.session.conversationHistory);
     try {
+      const user = await User.findById(req.session.userId);
       const chatbot = await Chatbot.findOne({ _id: req.params.id, user: req.session.userId });
       if (!chatbot) {
         console.log('Chatbot not found');
         return res.status(404).json({ error: 'Chatbot not found' });
+      }
+
+      if (!user.openaiApiKey) {
+        console.log('User OpenAI API key not found');
+        return res.status(400).json({ error: 'OpenAI API key not set. Please set your API key in your profile.' });
       }
 
       const userMessage = req.body.message;
@@ -208,7 +164,7 @@ module.exports = function(io) {
 
       console.log('Conversation history length:', req.session.conversationHistory.length);
 
-      const botResponse = await generateResponse(chatbot, userMessage, req.session.conversationHistory);
+      const botResponse = await generateResponse(chatbot, userMessage, req.session.conversationHistory, user.openaiApiKey);
       console.log('Generated bot response:', botResponse);
 
       if (io) {

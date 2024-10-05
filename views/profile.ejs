@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/_head.ejs') %>
+<body>
+<%- include('partials/_header.ejs') %>
+  <main role="main" class="container mt-4">
+    <h1 class="mb-4">User Profile</h1>
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">OpenAI API Key Management</h5>
+        <form action="/profile/update-api-key" method="POST">
+          <div class="mb-3">
+            <label for="openaiApiKey" class="form-label">OpenAI API Key</label>
+            <input type="password" class="form-control" id="openaiApiKey" name="openaiApiKey" value="<%= user.openaiApiKey ? '********' : '' %>" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Update API Key</button>
+        </form>
+      </div>
+    </div>
+  </main>
+<%- include('partials/_footer.ejs') %>
+</body>
+</html>

@@ -1,6 +1,6 @@
 const { createChatCompletion } = require('./openaiIntegration');
 
-async function generateResponse(chatbot, userMessage, conversationHistory = []) {
+async function generateResponse(chatbot, userMessage, conversationHistory = [], openaiApiKey) {
   console.log('Generating response for chatbot:', chatbot._id);
   console.log('Chatbot details:', JSON.stringify({
     name: chatbot.name,
@@ -11,6 +11,13 @@ async function generateResponse(chatbot, userMessage, conversationHistory = []) 
   }));
   console.log('User message:', userMessage);
   console.log('Conversation history:', conversationHistory);
+
+  if (!openaiApiKey) {
+    console.error('OpenAI API Key is missing');
+    return "I'm sorry, there's an issue with my configuration. Please contact support.";
+  }
+
+  console.log('OpenAI API Key (first 4 characters):', openaiApiKey.substring(0, 4));
 
   if (!userMessage.trim()) {
     console.log('Empty message detected, using greeting:', chatbot.greeting);
@@ -35,7 +42,7 @@ async function generateResponse(chatbot, userMessage, conversationHistory = []) 
       { role: 'user', content: userMessage }
     ];
 
-    const response = await createChatCompletion(messages);
+    const response = await createChatCompletion(messages, openaiApiKey);
 
     console.log('Generated response:', response);
 
