@@ -63,5 +63,6 @@ To run this project, you need:
 
 ### License
 
-The project is proprietary (not open source).
-© 2024 Pythagora Chatbots. All rights reserved.
+The project is open source, licensed under the MIT License. See the [LICENSE](LICENSE).
+
+Copyright © 2024 Pythagora-io.
